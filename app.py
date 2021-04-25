@@ -40,22 +40,38 @@ if check:
 st.header("OR")
 st.markdown("\n\n\n\n\n")
 st.subheader(
-    "Upload a csv file to generate the overall sentiments of each review")
+    "Upload a csv file to generate the overall sentiment of each review")
 csv_file = st.file_uploader("Upload a csv file")
 if csv_file:
     df = pd.read_csv(csv_file)
     st.write(df.head())
-    btn = st.button("Start")
-    my_bar = st.progress(0)
+    start_btn = st.button("Start")
+    # my_bar = st.progress(0.0)
+    # scale = 1/(len(df['review']))
+    st.spinner("Analysing each comment...")
     df.insert(8, "output", "")
     df['review'] = df['title']+df['body']
-    if btn:
+    df['review'].fillna(df['review'].mode()[0], inplace=True)
+    if start_btn:
         for i in range(len(df['review'])):
-            pred = cla.predict(cv.transform([df['review'][i]]))
-        if pred > 0.5:
-            df['output'][i] = "Positive"
-        else:
-            df['output'][i] = "Negative"
-            my_bar.progress(i+1)
-        st.write("Complete")
-        st.write(df.head())
+            content = df['review'][i]
+            pred = cla.predict(cv.transform([content]))
+            if pred > 0.5:
+                df['output'][i] = "Positive"
+            else:
+                df['output'][i] = "Negative"
+            # my_bar.progress(i+1)
+        st.success("Complete")
+        view_btn = st.button("View results")
+        if view_btn:
+            st.write(df.head())
+            dwnld_btn = st.button("Download results")
+            if dwnld_btn:
+                data = pd.DataFrame(df).to_csv(index=False)
+                # some strings <-> bytes conversions necessary here
+                b64 = base64.b64encode(data.encode()).decode()
+                href = f'<a href="data:file/csv;base64,{b64}">Download Results</a> (right-click and save as &lt;some_name&gt;.csv)'
+                st.markdown(href, unsafe_allow_html=True)
+
+                st.success("Download complete")
+        anal_btn = st.button("Analyse results")
