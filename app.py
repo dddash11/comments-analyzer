@@ -46,12 +46,13 @@ if csv_file:
     df = pd.read_csv(csv_file)
     st.write(df.head())
     start_btn = st.button("Start")
-    # my_bar = st.progress(0.0)
-    # scale = 1/(len(df['review']))
+    progress = 0.0
+    my_bar = st.progress(progress)
     st.spinner("Analysing each comment...")
     df.insert(8, "output", "")
     df['review'] = df['title']+df['body']
     df['review'].fillna(df['review'].mode()[0], inplace=True)
+    scale = 1/(len(df['review']))
     if start_btn:
         for i in range(len(df['review'])):
             content = df['review'][i]
@@ -60,7 +61,8 @@ if csv_file:
                 df['output'][i] = "Positive"
             else:
                 df['output'][i] = "Negative"
-            # my_bar.progress(i+1)
+            progress = progress+scale
+            my_bar.progress(progress)
         st.success("Complete")
         view_btn = st.button("View results")
         if view_btn:
