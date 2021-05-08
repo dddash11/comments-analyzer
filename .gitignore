@@ -2,3 +2,6 @@ models/*.pkl
 models/*.h5
 models/*.dat
 test data/*.csv
+glove.6B.50d.txt
+glove6b50dtxt.zip
+*.ppt
